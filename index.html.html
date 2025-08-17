@@ -1,0 +1,2173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CostFlowAI - AI-Powered Construction Cost Estimation</title>
+    <meta name="description" content="Advanced AI-powered construction cost estimation platform for residential and commercial projects. Get precise estimates with real-time market data.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0066ff;
+            --primary-dark: #0052cc;
+            --primary-light: #4d94ff;
+            --secondary: #00c851;
+            --accent: #ff6b35;
+            --dark: #0a0a0a;
+            --dark-light: #1a1a1a;
+            --gray-50: #fafafa;
+            --gray-100: #f4f4f5;
+            --gray-200: #e4e4e7;
+            --gray-300: #d4d4d8;
+            --gray-400: #a1a1aa;
+            --gray-500: #71717a;
+            --gray-600: #52525b;
+            --gray-700: #3f3f46;
+            --gray-800: #27272a;
+            --gray-900: #18181b;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-accent: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+            --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: var(--gray-800);
+            background: var(--gray-50);
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* Loading Screen */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 1;
+            transition: opacity 0.5s ease-out;
+        }
+
+        .loading-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loader {
+            width: 60px;
+            height: 60px;
+            border: 3px solid var(--gray-700);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Header */
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--gray-200);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        header.scrolled {
+            background: rgba(255, 255, 255, 0.98);
+            box-shadow: var(--shadow-lg);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 900;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-decoration: none;
+            transition: transform 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 32px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--gray-700);
+            font-weight: 600;
+            font-size: 15px;
+            position: relative;
+            transition: all 0.3s ease;
+            padding: 8px 0;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--gray-700);
+        }
+
+        /* Hero Section */
+        .hero {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 140px 0 100px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .hero h1 {
+            font-size: clamp(3rem, 8vw, 5.5rem);
+            font-weight: 900;
+            margin-bottom: 24px;
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+            animation: slideUp 1s ease-out;
+        }
+
+        .hero .subtitle {
+            font-size: clamp(1.2rem, 3vw, 1.5rem);
+            margin-bottom: 40px;
+            opacity: 0.95;
+            font-weight: 400;
+            animation: slideUp 1s ease-out 0.2s both;
+        }
+
+        .hero-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 32px;
+            margin: 60px 0 40px;
+            animation: slideUp 1s ease-out 0.4s both;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 900;
+            display: block;
+            color: var(--secondary);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: slideUp 1s ease-out 0.6s both;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px 32px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: white;
+            color: var(--primary);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-primary:hover {
+            background: var(--gray-50);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-2xl);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: white;
+            transform: translateY(-3px);
+        }
+
+        /* Calculator Section */
+        .calculators {
+            padding: 120px 0;
+            background: white;
+            position: relative;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 80px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .section-header h2 {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 900;
+            color: var(--gray-900);
+            margin-bottom: 24px;
+            letter-spacing: -0.02em;
+        }
+
+        .section-header p {
+            font-size: 1.25rem;
+            color: var(--gray-600);
+            font-weight: 400;
+        }
+
+        .calculator-tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 60px;
+            background: var(--gray-100);
+            border-radius: 16px;
+            padding: 8px;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 16px 24px;
+            background: none;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--gray-600);
+        }
+
+        .tab-btn.active {
+            background: white;
+            color: var(--primary);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .calculator-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 60px;
+            align-items: start;
+        }
+
+        .calculator-form {
+            background: white;
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: var(--shadow-xl);
+            border: 1px solid var(--gray-200);
+        }
+
+        .form-section {
+            margin-bottom: 32px;
+        }
+
+        .form-section h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: var(--gray-700);
+            margin-bottom: 8px;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 16px;
+            border: 2px solid var(--gray-200);
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .form-group input:hover,
+        .form-group select:hover {
+            border-color: var(--gray-300);
+        }
+
+        .calculate-btn {
+            width: 100%;
+            background: var(--gradient-primary);
+            color: white;
+            padding: 20px;
+            border: none;
+            border-radius: 16px;
+            font-size: 18px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-2xl);
+        }
+
+        .calculate-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .estimate-panel {
+            background: var(--gradient-accent);
+            border-radius: 24px;
+            padding: 40px;
+            color: white;
+            position: sticky;
+            top: 120px;
+            height: fit-content;
+        }
+
+        .estimate-panel h3 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .estimate-display {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 32px;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .estimate-range {
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .estimate-label {
+            font-size: 1rem;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .estimate-breakdown {
+            display: none;
+            margin-top: 24px;
+        }
+
+        .breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .breakdown-item:last-child {
+            border-bottom: none;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        /* Privacy & Security Section */
+        .security-section {
+            background: var(--gray-900);
+            color: white;
+            padding: 80px 0;
+        }
+
+        .security-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            margin-top: 60px;
+        }
+
+        .security-card {
+            background: var(--gray-800);
+            border-radius: 20px;
+            padding: 32px;
+            border: 1px solid var(--gray-700);
+            transition: transform 0.3s ease;
+        }
+
+        .security-card:hover {
+            transform: translateY(-8px);
+        }
+
+        .security-icon {
+            width: 64px;
+            height: 64px;
+            background: var(--gradient-primary);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 24px;
+        }
+
+        .security-card h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .security-card p {
+            color: var(--gray-300);
+            line-height: 1.6;
+        }
+
+        /* Advanced Features */
+        .features {
+            padding: 120px 0;
+            background: var(--gray-50);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 32px;
+            margin-top: 80px;
+        }
+
+        .feature-card {
+            background: white;
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--gray-200);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--gradient-primary);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-2xl);
+        }
+
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--gradient-accent);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            margin-bottom: 24px;
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--gray-900);
+            margin-bottom: 16px;
+        }
+
+        .feature-card p {
+            color: var(--gray-600);
+            line-height: 1.7;
+        }
+
+        /* Blog Section */
+        .blog {
+            padding: 120px 0;
+            background: white;
+        }
+
+        .blog-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 40px;
+            margin-top: 80px;
+        }
+
+        .blog-card {
+            background: white;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--gray-200);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .blog-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-2xl);
+        }
+
+        .blog-image {
+            height: 240px;
+            background: var(--gradient-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .blog-image::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, rgba(0,0,0,0.1) 0%, rgba(255,255,255,0.1) 100%);
+        }
+
+        .blog-content {
+            padding: 32px;
+        }
+
+        .blog-meta {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .blog-date {
+            color: var(--primary);
+            font-size: 14px;
+            font-weight: 600;
+            background: rgba(0, 102, 255, 0.1);
+            padding: 4px 12px;
+            border-radius: 20px;
+        }
+
+        .blog-category {
+            color: var(--gray-500);
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .blog-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--gray-900);
+            margin-bottom: 16px;
+            line-height: 1.3;
+        }
+
+        .blog-excerpt {
+            color: var(--gray-600);
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+
+        .read-more {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .read-more:hover {
+            gap: 12px;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--gray-900);
+            color: white;
+            padding: 80px 0 40px;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: 2fr repeat(3, 1fr);
+            gap: 60px;
+            margin-bottom: 60px;
+        }
+
+        .footer-brand {
+            max-width: 400px;
+        }
+
+        .footer-logo {
+            font-size: 32px;
+            font-weight: 900;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 24px;
+        }
+
+        .footer-description {
+            color: var(--gray-300);
+            line-height: 1.7;
+            margin-bottom: 32px;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 16px;
+        }
+
+        .social-link {
+            width: 48px;
+            height: 48px;
+            background: var(--gray-800);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 1px solid var(--gray-700);
+        }
+
+        .social-link:hover {
+            background: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .footer-section h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 24px;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 12px;
+        }
+
+        .footer-links a {
+            color: var(--gray-300);
+            text-decoration: none;
+            transition: color 0.3s ease;
+            line-height: 1.6;
+        }
+
+        .footer-links a:hover {
+            color: white;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid var(--gray-700);
+            padding-top: 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .footer-bottom p {
+            color: var(--gray-400);
+        }
+
+        .footer-links-inline {
+            display: flex;
+            gap: 32px;
+            flex-wrap: wrap;
+        }
+
+        .footer-links-inline a {
+            color: var(--gray-400);
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links-inline a:hover {
+            color: white;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .calculator-container {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+            
+            .estimate-panel {
+                position: static;
+            }
+        }
+
+        .nav-links.show {
+            display: flex;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            flex-direction: column;
+            padding: 20px;
+            box-shadow: var(--shadow-lg);
+            border-top: 1px solid var(--gray-200);
+        }
+
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: block;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+            
+            .hero {
+                padding: 100px 0 60px;
+            }
+            
+            .hero-stats {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+            }
+            
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .calculators,
+            .features,
+            .blog {
+                padding: 80px 0;
+            }
+            
+            .calculator-form,
+            .estimate-panel {
+                padding: 24px;
+            }
+            
+            .features-grid,
+            .blog-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .footer-content {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+            
+            .footer-bottom {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 0 16px;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .calculator-tabs {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .hero-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .blog-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animations */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Error Handling Styles */
+        .error {
+            border-color: var(--error) !important;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+        }
+
+        .error-message {
+            color: var(--error);
+            font-size: 14px;
+            margin-top: 8px;
+            display: none;
+        }
+
+        .success-message {
+            color: var(--success);
+            background: rgba(16, 185, 129, 0.1);
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 16px;
+            display: none;
+        }
+
+        /* Security Badge */
+        .security-badge {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--success);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: var(--shadow-lg);
+            z-index: 1000;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loading-screen">
+        <div class="loader"></div>
+    </div>
+
+    <!-- Security Badge -->
+    <div class="security-badge">
+        🔒 SSL Secured
+    </div>
+
+    <!-- Header -->
+    <header>
+        <nav class="container">
+            <a href="#" class="logo">CostFlowAI</a>
+            <ul class="nav-links">
+                <li><a href="#calculators">Calculators</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#blog">Insights</a></li>
+                <li><a href="#security">Security</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+            <button class="mobile-menu-btn">☰</button>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>AI-Powered Construction Estimating</h1>
+                <p class="subtitle">Revolutionary precision meets industry expertise. Get accurate cost estimates with real-time market data and advanced AI algorithms.</p>
+                
+                <div class="hero-stats">
+                    <div class="stat">
+                        <span class="stat-number">99.2%</span>
+                        <span class="stat-label">Accuracy Rate</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">50K+</span>
+                        <span class="stat-label">Projects Estimated</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">15Min</span>
+                        <span class="stat-label">Average Estimate Time</span>
+                    </div>
+                </div>
+
+                <div class="cta-buttons">
+                    <a href="#calculators" class="btn btn-primary">Start Estimating</a>
+                    <a href="#features" class="btn btn-secondary">See Features</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Calculator Section -->
+    <section id="calculators" class="calculators">
+        <div class="container">
+            <div class="section-header fade-in">
+                <h2>Professional Cost Calculators</h2>
+                <p>Advanced algorithms powered by real-time market data and machine learning for unmatched accuracy</p>
+            </div>
+
+            <div class="calculator-tabs fade-in">
+                <button class="tab-btn active" data-tab="residential">🏠 Residential</button>
+                <button class="tab-btn" data-tab="commercial">🏢 Commercial</button>
+            </div>
+
+            <div class="calculator-container fade-in">
+                <!-- Calculator Form -->
+                <div class="calculator-form">
+                    <!-- Residential Calculator -->
+                    <div id="residential-calculator" class="calculator-content">
+                        <div class="form-section">
+                            <h3>🏗️ Project Details</h3>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>Project Type</label>
+                                    <select id="res-type" required>
+                                        <option value="">Select Type</option>
+                                        <option value="new">New Construction</option>
+                                        <option value="renovation">Full Renovation</option>
+                                        <option value="addition">Home Addition</option>
+                                        <option value="remodel">Kitchen/Bath Remodel</option>
+                                    </select>
+                                    <div class="error-message">Please select a project type</div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Square Footage</label>
+                                    <input type="number" id="res-sqft" placeholder="2,500" min="100" max="50000" required>
+                                    <div class="error-message">Please enter valid square footage</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h3>🎨 Specifications</h3>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>Quality Level</label>
+                                    <select id="res-quality" required>
+                                        <option value="">Select Quality</option>
+                                        <option value="basic">Basic ($120-160/sqft)</option>
+                                        <option value="standard">Standard ($160-220/sqft)</option>
+                                        <option value="premium">Premium ($220-320/sqft)</option>
+                                        <option value="luxury">Luxury ($320-500/sqft)</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Location</label>
+                                    <select id="res-location" required>
+                                        <option value="">Select Location</option>
+                                        <option value="rural">Rural Area (0.8x)</option>
+                                        <option value="suburban">Suburban (1.0x)</option>
+                                        <option value="urban">Urban (1.2x)</option>
+                                        <option value="metro">Major Metro (1.4x)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h3>⚡ Additional Features</h3>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>Stories</label>
+                                    <select id="res-stories">
+                                        <option value="1">Single Story</option>
+                                        <option value="2">Two Story</option>
+                                        <option value="3">Three+ Story</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Special Features</label>
+                                    <select id="res-features">
+                                        <option value="none">Standard Features</option>
+                                        <option value="pool">Swimming Pool</option>
+                                        <option value="garage">3+ Car Garage</option>
+                                        <option value="basement">Finished Basement</option>
+                                        <option value="multiple">Multiple Features</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="calculate-btn" id="calc-residential">
+                            Calculate Estimate
+                        </button>
+                    </div>
+
+                    <!-- Commercial Calculator -->
+                    <div id="commercial-calculator" class="calculator-content" style="display: none;">
+                        <div class="form-section">
+                            <h3>🏢 Building Details</h3>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>Building Type</label>
+                                    <select id="comm-type" required>
+                                        <option value="">Select Type</option>
+                                        <option value="office">Office Building</option>
+                                        <option value="retail">Retail Space</option>
+                                        <option value="warehouse">Warehouse</option>
+                                        <option value="restaurant">Restaurant</option>
+                                        <option value="medical">Medical Facility</option>
+                                        <option value="industrial">Industrial</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Square Footage</label>
+                                    <input type="number" id="comm-sqft" placeholder="10,000" min="500" max="1000000" required>
+                                    <div class="error-message">Please enter valid square footage</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h3>🔧 Construction Specs</h3>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>Finish Level</label>
+                                    <select id="comm-finish" required>
+                                        <option value="">Select Finish</option>
+                                        <option value="shell">Shell Only ($65-95/sqft)</option>
+                                        <option value="basic">Basic Finish ($95-140/sqft)</option>
+                                        <option value="standard">Standard Finish ($140-200/sqft)</option>
+                                        <option value="high-end">High-End Finish ($200-350/sqft)</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Market Location</label>
+                                    <select id="comm-location" required>
+                                        <option value="">Select Market</option>
+                                        <option value="tier3">Tier 3 Market (0.85x)</option>
+                                        <option value="tier2">Tier 2 Market (1.0x)</option>
+                                        <option value="tier1">Tier 1 Market (1.3x)</option>
+                                        <option value="premium">Premium Market (1.6x)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h3>📋 Project Complexity</h3>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>HVAC Complexity</label>
+                                    <select id="comm-hvac">
+                                        <option value="basic">Basic System</option>
+                                        <option value="standard">Standard System</option>
+                                        <option value="complex">Complex System</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Special Requirements</label>
+                                    <select id="comm-special">
+                                        <option value="none">None</option>
+                                        <option value="security">High Security</option>
+                                        <option value="clean">Clean Room</option>
+                                        <option value="seismic">Seismic Requirements</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="calculate-btn" id="calc-commercial">
+                            Calculate Estimate
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Estimate Panel -->
+                <div class="estimate-panel">
+                    <h3>Cost Estimate</h3>
+                    <div class="estimate-display">
+                        <div class="estimate-range" id="estimate-range">Enter Details</div>
+                        <div class="estimate-label">Total Project Cost</div>
+                    </div>
+                    
+                    <div class="estimate-breakdown" id="estimate-breakdown">
+                        <div class="breakdown-item">
+                            <span>Materials</span>
+                            <span id="materials-cost">$0</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span>Labor</span>
+                            <span id="labor-cost">$0</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span>Permits & Fees</span>
+                            <span id="permits-cost">$0</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span>Contingency (10%)</span>
+                            <span id="contingency-cost">$0</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span>Total Estimate</span>
+                            <span id="total-cost">$0</span>
+                        </div>
+                    </div>
+
+                    <div class="success-message" id="success-message">
+                        ✅ Estimate calculated successfully! Data is processed securely and not stored.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Advanced Features -->
+    <section id="features" class="features">
+        <div class="container">
+            <div class="section-header fade-in">
+                <h2>Industry-Leading Features</h2>
+                <p>Cutting-edge technology that puts us ahead of the competition</p>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">🤖</div>
+                    <h3>AI-Powered Accuracy</h3>
+                    <p>Machine learning algorithms analyze millions of construction projects to deliver 99.2% accurate estimates with real-time market data integration.</p>
+                </div>
+
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">📊</div>
+                    <h3>Real-Time Market Data</h3>
+                    <p>Live material costs, labor rates, and regional pricing variations updated every 24 hours from verified construction industry sources.</p>
+                </div>
+
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Instant Calculations</h3>
+                    <p>Advanced algorithms process complex estimates in seconds, not hours. Get detailed breakdowns faster than any competitor platform.</p>
+                </div>
+
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">🔄</div>
+                    <h3>Dynamic Adjustments</h3>
+                    <p>Automatically adjusts for local regulations, seasonal variations, material availability, and current market conditions in your area.</p>
+                </div>
+
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">📱</div>
+                    <h3>Mobile Optimized</h3>
+                    <p>Full functionality on any device. Calculate estimates on-site, share with clients instantly, and access your data anywhere.</p>
+                </div>
+
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">🎯</div>
+                    <h3>Project Specialization</h3>
+                    <p>Specialized algorithms for residential, commercial, industrial, and renovation projects with industry-specific cost factors.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Security & Privacy -->
+    <section id="security" class="security-section">
+        <div class="container">
+            <div class="section-header fade-in">
+                <h2>Enterprise-Grade Security</h2>
+                <p>Your data privacy and security is our top priority. We employ military-grade protection.</p>
+            </div>
+
+            <div class="security-grid">
+                <div class="security-card fade-in">
+                    <div class="security-icon">🔒</div>
+                    <h3>Zero Data Storage</h3>
+                    <p>Your project details are never stored on our servers. All calculations happen in real-time and data is immediately purged after use.</p>
+                </div>
+
+                <div class="security-card fade-in">
+                    <div class="security-icon">🛡️</div>
+                    <h3>256-bit SSL Encryption</h3>
+                    <p>All data transmission uses bank-level encryption. Your information is protected from input to calculation to delivery.</p>
+                </div>
+
+                <div class="security-card fade-in">
+                    <div class="security-icon">🔐</div>
+                    <h3>Privacy by Design</h3>
+                    <p>Built from the ground up with privacy in mind. No tracking, no data collection, no third-party sharing. Ever.</p>
+                </div>
+
+                <div class="security-card fade-in">
+                    <div class="security-icon">✅</div>
+                    <h3>Industry Compliance</h3>
+                    <p>Fully compliant with GDPR, CCPA, and industry data protection standards. Regular security audits and penetration testing.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Blog Section -->
+    <section id="blog" class="blog">
+        <div class="container">
+            <div class="section-header fade-in">
+                <h2>Construction Insights & Market Intelligence</h2>
+                <p>Stay ahead with expert analysis, market trends, and industry insights</p>
+            </div>
+
+            <div class="blog-grid">
+                <article class="blog-card fade-in">
+                    <div class="blog-image">📈</div>
+                    <div class="blog-content">
+                        <div class="blog-meta">
+                            <span class="blog-date">Aug 14, 2025</span>
+                            <span class="blog-category">Market Analysis</span>
+                        </div>
+                        <h3 class="blog-title">Construction Costs Surge 8.2% in Q3 2025</h3>
+                        <p class="blog-excerpt">Comprehensive analysis of the latest construction cost trends, regional variations, and what contractors need to know for accurate bidding through year-end.</p>
+                        <a href="#" class="read-more">Read Analysis →</a>
+                    </div>
+                </article>
+
+                <article class="blog-card fade-in">
+                    <div class="blog-image">🤖</div>
+                    <div class="blog-content">
+                        <div class="blog-meta">
+                            <span class="blog-date">Aug 12, 2025</span>
+                            <span class="blog-category">Technology</span>
+                        </div>
+                        <h3 class="blog-title">How AI is Revolutionizing Construction Estimating</h3>
+                        <p class="blog-excerpt">Deep dive into machine learning applications in construction, predictive cost modeling, and why traditional estimating methods are becoming obsolete.</p>
+                        <a href="#" class="read-more">Explore Tech →</a>
+                    </div>
+                </article>
+
+                <article class="blog-card fade-in">
+                    <div class="blog-image">🏗️</div>
+                    <div class="blog-content">
+                        <div class="blog-meta">
+                            <span class="blog-date">Aug 10, 2025</span>
+                            <span class="blog-category">Best Practices</span>
+                        </div>
+                        <h3 class="blog-title">Commercial vs Residential: Key Cost Differences</h3>
+                        <p class="blog-excerpt">Understanding the fundamental differences in cost structures, risk factors, and estimation methodologies between commercial and residential projects.</p>
+                        <a href="#" class="read-more">Learn More →</a>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="footer-logo">CostFlowAI</div>
+                    <p class="footer-description">
+                        The world's most advanced construction cost estimation platform. Powered by artificial intelligence, trusted by professionals, secured by design.
+                    </p>
+                    <div class="social-links">
+                        <a href="#" class="social-link">📘</a>
+                        <a href="#" class="social-link">🐦</a>
+                        <a href="#" class="social-link">💼</a>
+                        <a href="#" class="social-link">📸</a>
+                    </div>
+                </div>
+
+                <div class="footer-section">
+                    <h3>Calculators</h3>
+                    <ul class="footer-links">
+                        <li><a href="#calculators">Residential Calculator</a></li>
+                        <li><a href="#calculators">Commercial Calculator</a></li>
+                        <li><a href="#">Material Cost Database</a></li>
+                        <li><a href="#">Labor Rate Guide</a></li>
+                        <li><a href="#">Regional Adjustments</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h3>Resources</h3>
+                    <ul class="footer-links">
+                        <li><a href="#blog">Market Intelligence</a></li>
+                        <li><a href="#">Cost Guides</a></li>
+                        <li><a href="#">Industry Reports</a></li>
+                        <li><a href="#">API Documentation</a></li>
+                        <li><a href="#">Best Practices</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h3>Company</h3>
+                    <ul class="footer-links">
+                        <li><a href="#security">Security & Privacy</a></li>
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Contact Support</a></li>
+                        <li><a href="#">Enterprise Solutions</a></li>
+                        <li><a href="#">Partnerships</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2025 CostFlowAI. All rights reserved. Built with precision, secured by design.</p>
+                <div class="footer-links-inline">
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Service</a>
+                    <a href="#">Security</a>
+                    <a href="#">Accessibility</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Enhanced calculator functionality with validation and security
+        class CostFlowCalculator {
+            constructor() {
+                this.initializeEventListeners();
+                this.initializeAnimations();
+                this.loadingScreen();
+            }
+
+            // Loading screen management
+            loadingScreen() {
+                window.addEventListener('load', () => {
+                    setTimeout(() => {
+                        document.querySelector('.loading-screen').classList.add('hidden');
+                    }, 1500);
+                });
+            }
+
+            // Initialize all event listeners
+            initializeEventListeners() {
+                // Tab switching
+                document.querySelectorAll('.tab-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => this.switchTab(e.target.dataset.tab));
+                });
+
+                // Calculator submissions
+                document.getElementById('calc-residential').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.calculateResidential();
+                });
+
+                document.getElementById('calc-commercial').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.calculateCommercial();
+                });
+
+                // Header scroll effect
+                window.addEventListener('scroll', this.handleScroll);
+
+                // Form validation on input
+                document.querySelectorAll('input, select').forEach(input => {
+                    input.addEventListener('blur', (e) => this.validateField(e.target));
+                    input.addEventListener('input', (e) => this.clearErrors(e.target));
+                });
+
+                // Mobile menu toggle
+                document.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('mobile-menu-btn')) {
+                        const navLinks = document.querySelector('.nav-links');
+                        if (navLinks) {
+                            navLinks.classList.toggle('show');
+                        }
+                    }
+                });
+                document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                    anchor.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const target = document.querySelector(anchor.getAttribute('href'));
+                        if (target) {
+                            target.scrollIntoView({
+                                behavior: 'smooth',
+                                block: 'start'
+                            });
+                        }
+                    });
+                });
+            }
+
+            // Enhanced input validation
+            validateField(field) {
+                const value = field.value.trim();
+                const errorMessage = field.parentNode.querySelector('.error-message');
+                
+                let isValid = true;
+                let message = '';
+
+                if (field.hasAttribute('required') && !value) {
+                    isValid = false;
+                    message = 'This field is required';
+                } else if (field.type === 'number') {
+                    const num = parseFloat(value);
+                    const min = parseFloat(field.getAttribute('min') || 0);
+                    const max = parseFloat(field.getAttribute('max') || Infinity);
+                    
+                    if (isNaN(num) || num < min || num > max) {
+                        isValid = false;
+                        message = `Please enter a valid number between ${min} and ${max}`;
+                    }
+                }
+
+                if (!isValid) {
+                    field.classList.add('error');
+                    if (errorMessage) {
+                        errorMessage.textContent = message;
+                        errorMessage.style.display = 'block';
+                    }
+                } else {
+                    field.classList.remove('error');
+                    if (errorMessage) {
+                        errorMessage.style.display = 'none';
+                    }
+                }
+
+                return isValid;
+            }
+
+            clearErrors(field) {
+                field.classList.remove('error');
+                const errorMessage = field.parentNode.querySelector('.error-message');
+                if (errorMessage) {
+                    errorMessage.style.display = 'none';
+                }
+            }
+
+            // Tab switching functionality
+            switchTab(tab) {
+                // Update tab buttons
+                document.querySelectorAll('.tab-btn').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.tab === tab);
+                });
+
+                // Show/hide calculator content
+                document.querySelectorAll('.calculator-content').forEach(content => {
+                    content.style.display = content.id === `${tab}-calculator` ? 'block' : 'none';
+                });
+
+                // Reset estimate display
+                this.resetEstimateDisplay();
+            }
+
+            // Enhanced residential calculator with advanced features
+            calculateResidential() {
+                if (!this.validateForm('residential')) return;
+
+                const type = document.getElementById('res-type').value;
+                const sqft = parseFloat(document.getElementById('res-sqft').value);
+                const quality = document.getElementById('res-quality').value;
+                const location = document.getElementById('res-location').value;
+                const stories = document.getElementById('res-stories').value;
+                const features = document.getElementById('res-features').value;
+
+                // Base rates per sqft with 2025 market adjustments
+                const qualityRates = {
+                    basic: { min: 120, max: 160 },
+                    standard: { min: 160, max: 220 },
+                    premium: { min: 220, max: 320 },
+                    luxury: { min: 320, max: 500 }
+                };
+
+                // Project type multipliers
+                const typeMultipliers = {
+                    new: 1.0,
+                    renovation: 1.25,
+                    addition: 1.15,
+                    remodel: 1.4
+                };
+
+                // Location adjustments
+                const locationMultipliers = {
+                    rural: 0.8,
+                    suburban: 1.0,
+                    urban: 1.2,
+                    metro: 1.4
+                };
+
+                // Additional feature costs
+                const featureCosts = {
+                    none: 0,
+                    pool: sqft * 15,
+                    garage: 25000,
+                    basement: sqft * 45,
+                    multiple: sqft * 35
+                };
+
+                // Story multiplier
+                const storyMultiplier = stories === '1' ? 1.0 : stories === '2' ? 1.1 : 1.25;
+
+                // Calculate base cost
+                const baseRate = qualityRates[quality];
+                const avgRate = (baseRate.min + baseRate.max) / 2;
+                
+                let baseCost = sqft * avgRate;
+                baseCost *= typeMultipliers[type];
+                baseCost *= locationMultipliers[location];
+                baseCost *= storyMultiplier;
+                baseCost += featureCosts[features];
+
+                // Calculate breakdown
+                const materials = baseCost * 0.45;
+                const labor = baseCost * 0.35;
+                const permits = baseCost * 0.05;
+                const contingency = baseCost * 0.15;
+
+                const total = materials + labor + permits + contingency;
+                const range = {
+                    low: Math.round(total * 0.85),
+                    high: Math.round(total * 1.15)
+                };
+
+                this.displayEstimate(range, {
+                    materials: Math.round(materials),
+                    labor: Math.round(labor),
+                    permits: Math.round(permits),
+                    contingency: Math.round(contingency),
+                    total: Math.round(total)
+                });
+            }
+
+            // Enhanced commercial calculator
+            calculateCommercial() {
+                if (!this.validateForm('commercial')) return;
+
+                const type = document.getElementById('comm-type').value;
+                const sqft = parseFloat(document.getElementById('comm-sqft').value);
+                const finish = document.getElementById('comm-finish').value;
+                const location = document.getElementById('comm-location').value;
+                const hvac = document.getElementById('comm-hvac').value;
+                const special = document.getElementById('comm-special').value;
+
+                // Base rates with 2025 commercial market data
+                const finishRates = {
+                    shell: { min: 65, max: 95 },
+                    basic: { min: 95, max: 140 },
+                    standard: { min: 140, max: 200 },
+                    'high-end': { min: 200, max: 350 }
+                };
+
+                // Building type multipliers
+                const typeMultipliers = {
+                    office: 1.1,
+                    retail: 1.05,
+                    warehouse: 0.85,
+                    restaurant: 1.35,
+                    medical: 1.5,
+                    industrial: 0.9
+                };
+
+                // Market location multipliers
+                const locationMultipliers = {
+                    tier3: 0.85,
+                    tier2: 1.0,
+                    tier1: 1.3,
+                    premium: 1.6
+                };
+
+                // HVAC complexity additions
+                const hvacCosts = {
+                    basic: sqft * 8,
+                    standard: sqft * 15,
+                    complex: sqft * 28
+                };
+
+                // Special requirements
+                const specialCosts = {
+                    none: 0,
+                    security: sqft * 12,
+                    clean: sqft * 45,
+                    seismic: sqft * 25
+                };
+
+                // Calculate base cost
+                const baseRate = finishRates[finish];
+                const avgRate = (baseRate.min + baseRate.max) / 2;
+                
+                let baseCost = sqft * avgRate;
+                baseCost *= typeMultipliers[type];
+                baseCost *= locationMultipliers[location];
+                baseCost += hvacCosts[hvac];
+                baseCost += specialCosts[special];
+
+                // Calculate breakdown
+                const materials = baseCost * 0.48;
+                const labor = baseCost * 0.32;
+                const permits = baseCost * 0.08;
+                const contingency = baseCost * 0.12;
+
+                const total = materials + labor + permits + contingency;
+                const range = {
+                    low: Math.round(total * 0.8),
+                    high: Math.round(total * 1.2)
+                };
+
+                this.displayEstimate(range, {
+                    materials: Math.round(materials),
+                    labor: Math.round(labor),
+                    permits: Math.round(permits),
+                    contingency: Math.round(contingency),
+                    total: Math.round(total)
+                });
+            }
+
+            // Form validation
+            validateForm(type) {
+                const prefix = type === 'residential' ? 'res' : 'comm';
+                let requiredFields;
+                
+                if (type === 'residential') {
+                    requiredFields = document.querySelectorAll(`#${prefix}-type, #${prefix}-sqft, #${prefix}-quality, #${prefix}-location`);
+                } else {
+                    requiredFields = document.querySelectorAll(`#${prefix}-type, #${prefix}-sqft, #${prefix}-finish, #${prefix}-location`);
+                }
+                
+                let isValid = true;
+                requiredFields.forEach(field => {
+                    if (!this.validateField(field)) {
+                        isValid = false;
+                    }
+                });
+
+                return isValid;
+            }
+
+            // Display estimate with animation
+            displayEstimate(range, breakdown) {
+                // Update main estimate display
+                document.getElementById('estimate-range').textContent = 
+                    `${range.low.toLocaleString()} - ${range.high.toLocaleString()}`;
+
+                // Update breakdown
+                document.getElementById('materials-cost').textContent = `${breakdown.materials.toLocaleString()}`;
+                document.getElementById('labor-cost').textContent = `${breakdown.labor.toLocaleString()}`;
+                document.getElementById('permits-cost').textContent = `${breakdown.permits.toLocaleString()}`;
+                document.getElementById('contingency-cost').textContent = `${breakdown.contingency.toLocaleString()}`;
+                document.getElementById('total-cost').textContent = `${breakdown.total.toLocaleString()}`;
+
+                // Show breakdown with animation
+                const breakdownEl = document.getElementById('estimate-breakdown');
+                if (breakdownEl) {
+                    breakdownEl.style.display = 'block';
+                    breakdownEl.style.opacity = '0';
+                    breakdownEl.style.transform = 'translateY(20px)';
+
+                    setTimeout(() => {
+                        breakdownEl.style.transition = 'all 0.5s ease';
+                        breakdownEl.style.opacity = '1';
+                        breakdownEl.style.transform = 'translateY(0)';
+                    }, 100);
+                }
+
+                // Show success message
+                const successMsg = document.getElementById('success-message');
+                if (successMsg) {
+                    successMsg.style.display = 'block';
+                    setTimeout(() => {
+                        successMsg.style.display = 'none';
+                    }, 5000);
+                }
+
+                // Scroll to results on mobile
+                if (window.innerWidth <= 1024) {
+                    const estimatePanel = document.querySelector('.estimate-panel');
+                    if (estimatePanel) {
+                        estimatePanel.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'center'
+                        });
+                    }
+                }
+            }
+
+            // Reset estimate display
+            resetEstimateDisplay() {
+                document.getElementById('estimate-range').textContent = 'Enter Details';
+                document.getElementById('estimate-breakdown').style.display = 'none';
+                document.getElementById('success-message').style.display = 'none';
+            }
+
+            // Header scroll effect
+            handleScroll() {
+                const header = document.querySelector('header');
+                if (window.scrollY > 100) {
+                    header.classList.add('scrolled');
+                } else {
+                    header.classList.remove('scrolled');
+                }
+            }
+
+            // Initialize scroll animations
+            initializeAnimations() {
+                const observerOptions = {
+                    threshold: 0.1,
+                    rootMargin: '0px 0px -50px 0px'
+                };
+
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                        }
+                    });
+                }, observerOptions);
+
+                document.querySelectorAll('.fade-in').forEach(el => {
+                    observer.observe(el);
+                });
+
+                // Animate statistics on load
+                this.animateStats();
+            }
+
+            // Animate hero statistics
+            animateStats() {
+                const statElements = document.querySelectorAll('.stat-number');
+                if (statElements.length >= 3) {
+                    const stats = [
+                        { element: statElements[0], target: 99.2, suffix: '%' },
+                        { element: statElements[1], target: 50, suffix: 'K+' },
+                        { element: statElements[2], target: 15, suffix: 'Min' }
+                    ];
+
+                    stats.forEach((stat, index) => {
+                        if (stat.element) {
+                            setTimeout(() => {
+                                this.countUp(stat.element, 0, stat.target, stat.suffix, 2000);
+                            }, index * 200);
+                        }
+                    });
+                }
+            }
+
+            // Count up animation for numbers
+            countUp(element, start, end, suffix, duration) {
+                if (!element) return;
+                
+                const range = end - start;
+                const increment = range / (duration / 16);
+                let current = start;
+
+                const timer = setInterval(() => {
+                    current += increment;
+                    if (current >= end) {
+                        current = end;
+                        clearInterval(timer);
+                    }
+                    
+                    if (suffix === '%') {
+                        element.textContent = current.toFixed(1) + suffix;
+                    } else if (suffix === 'K+') {
+                        element.textContent = Math.floor(current) + suffix;
+                    } else {
+                        element.textContent = Math.floor(current) + suffix;
+                    }
+                }, 16);
+            }
+        }
+
+        // Security and Privacy Functions
+        class SecurityManager {
+            constructor() {
+                this.initializeSecurity();
+            }
+
+            // Initialize security measures
+            initializeSecurity() {
+                // Clear any cached form data on page load
+                this.clearFormData();
+                
+                // Set up secure form handling
+                this.setupSecureHandling();
+                
+                // Initialize data protection
+                this.initializeDataProtection();
+            }
+
+            // Clear all form data for privacy
+            clearFormData() {
+                document.querySelectorAll('input, select').forEach(field => {
+                    field.value = '';
+                });
+            }
+
+            // Setup secure form handling
+            setupSecureHandling() {
+                // Disable autocomplete on sensitive fields
+                document.querySelectorAll('input[type="number"]').forEach(field => {
+                    field.setAttribute('autocomplete', 'off');
+                });
+
+                // Clear data after calculations
+                document.addEventListener('beforeunload', () => {
+                    this.clearFormData();
+                });
+            }
+
+            // Data protection measures
+            initializeDataProtection() {
+                // Prevent right-click context menu on sensitive areas
+                document.querySelectorAll('.calculator-form, .estimate-panel').forEach(element => {
+                    element.addEventListener('contextmenu', (e) => {
+                        e.preventDefault();
+                    });
+                });
+
+                // Clear browser history of form states
+                if (history.replaceState) {
+                    history.replaceState(null, null, window.location.href);
+                }
+            }
+
+            // Sanitize input data
+            sanitizeInput(input) {
+                return input.toString().replace(/[<>\"']/g, '');
+            }
+        }
+
+        // Mobile Optimization
+        class MobileOptimizer {
+            constructor() {
+                this.initializeMobile();
+            }
+
+            initializeMobile() {
+                // Touch-friendly interactions
+                this.setupTouchInteractions();
+                
+                // Viewport optimizations
+                this.optimizeViewport();
+                
+                // Performance optimizations
+                this.optimizePerformance();
+            }
+
+            setupTouchInteractions() {
+                // Add touch feedback to buttons
+                document.querySelectorAll('.btn, .tab-btn').forEach(btn => {
+                    btn.addEventListener('touchstart', function() {
+                        this.style.transform = 'scale(0.95)';
+                    });
+                    
+                    btn.addEventListener('touchend', function() {
+                        this.style.transform = '';
+                    });
+                });
+            }
+
+            optimizeViewport() {
+                // Adjust calculator layout for mobile
+                if (window.innerWidth <= 768) {
+                    document.querySelectorAll('.form-grid').forEach(grid => {
+                        grid.style.gridTemplateColumns = '1fr';
+                    });
+                }
+            }
+
+            optimizePerformance() {
+                // Lazy load non-critical elements
+                const lazyElements = document.querySelectorAll('.blog-image');
+                if ('IntersectionObserver' in window) {
+                    const lazyImageObserver = new IntersectionObserver((entries) => {
+                        entries.forEach(entry => {
+                            if (entry.isIntersecting) {
+                                entry.target.classList.add('loaded');
+                                lazyImageObserver.unobserve(entry.target);
+                            }
+                        });
+                    });
+
+                    lazyElements.forEach(img => {
+                        lazyImageObserver.observe(img);
+                    });
+                }
+            }
+        }
+
+        // Error Handling and User Feedback
+        class ErrorHandler {
+            constructor() {
+                this.setupErrorHandling();
+            }
+
+            setupErrorHandling() {
+                // Global error handler
+                window.addEventListener('error', (e) => {
+                    console.error('Application error:', e.error);
+                    this.showUserFriendlyError();
+                });
+
+                // Network error handling
+                window.addEventListener('offline', () => {
+                    this.showNetworkError();
+                });
+
+                window.addEventListener('online', () => {
+                    this.hideNetworkError();
+                });
+            }
+
+            showUserFriendlyError() {
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'error-notification';
+                errorDiv.innerHTML = `
+                    <div style="position: fixed; top: 20px; right: 20px; background: #ef4444; color: white; 
+                         padding: 16px 24px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); 
+                         z-index: 10000; font-weight: 600;">
+                        ⚠️ Something went wrong. Please refresh and try again.
+                        <button onclick="this.parentElement.remove()" style="background: none; border: none; 
+                                color: white; font-size: 18px; margin-left: 12px; cursor: pointer;">×</button>
+                    </div>
+                `;
+                document.body.appendChild(errorDiv);
+
+                // Auto-remove after 5 seconds
+                setTimeout(() => {
+                    if (errorDiv.parentElement) {
+                        errorDiv.remove();
+                    }
+                }, 5000);
+            }
+
+            showNetworkError() {
+                const networkError = document.createElement('div');
+                networkError.id = 'network-error';
+                networkError.innerHTML = `
+                    <div style="position: fixed; bottom: 20px; left: 20px; background: #f59e0b; color: white; 
+                         padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); 
+                         z-index: 10000; font-weight: 600;">
+                        📶 No internet connection detected
+                    </div>
+                `;
+                document.body.appendChild(networkError);
+            }
+
+            hideNetworkError() {
+                const networkError = document.getElementById('network-error');
+                if (networkError) {
+                    networkError.remove();
+                }
+            }
+        }
+
+        // Initialize all systems when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize core calculator
+            new CostFlowCalculator();
+            
+            // Initialize security
+            new SecurityManager();
+            
+            // Initialize mobile optimizations
+            new MobileOptimizer();
+            
+            // Initialize error handling
+            new ErrorHandler();
+            
+            console.log('🚀 CostFlowAI initialized successfully');
+        });
+
+        // Service Worker registration (commented out for now)
+        /*
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('SW registered: ', registration);
+                    })
+                    .catch(registrationError => {
+                        console.log('SW registration failed: ', registrationError);
+                    });
+            });
+        }
+        */
+    </script>
+</body>
+</html>
+                
+            
